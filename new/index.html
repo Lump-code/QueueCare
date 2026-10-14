@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Healthcare Access Project — Reducing Waiting Time in Government Hospitals</title>
+  <meta name="description" content="Digital OPD portal to reduce waiting times in Indian government hospitals." />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- ================= TOP NAVIGATION BAR ================= -->
+  <header class="topbar no-print">
+    <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">&#9776;</button>
+    <a href="#home" class="brand" data-view="home">
+      <span class="brand-icon">&#10010;</span>
+      <span>
+        <strong>Healthcare Access Project</strong>
+        <small>Faster Care. Healthier Tomorrows.</small>
+      </span>
+    </a>
+    <nav class="top-links">
+      <a href="#home" data-view="home">Home</a>
+      <a href="#about" data-view="about">About</a>
+      <a href="#contact" data-view="contact">Contact</a>
+      <span class="profile-icon" aria-label="User profile">&#128100;</span>
+    </nav>
+  </header>
+
+  <div class="layout">
+    <!-- ================= SIDEBAR ================= -->
+    <aside class="sidebar no-print" id="sidebar">
+      <a href="#home" data-view="home"><span class="sicon">&#127968;</span>Home</a>
+      <a href="#register" data-view="register"><span class="sicon">&#128221;</span>Registration</a>
+      <a href="#emergency" data-view="emergency"><span class="sicon">&#128657;</span>Emergency</a>
+      <a href="#diagnostics" data-view="diagnostics"><span class="sicon">&#129658;</span>Diagnosis</a>
+      <a href="#queue" data-view="queue"><span class="sicon">&#127915;</span>Token Inquire</a>
+      <a href="#appointments" data-view="appointments"><span class="sicon">&#128197;</span>Schedule</a>
+    </aside>
+
+    <main class="content">
+
+
+      <!-- ================= 1. HOME DASHBOARD ================= -->
+      <section class="view" id="view-home">
+        <div class="card hero">
+          <p class="eyebrow">District Government Hospital · OPD Portal</p>
+          <h1>Skip the line. Register online and arrive at your slot.</h1>
+          <p class="muted">Digital registration, timed tokens and live queue updates cut average OPD waiting time from hours to minutes.</p>
+          <div class="row">
+            <a href="#register" data-view="register" class="btn">Book Appointment</a>
+            <a href="#queue" data-view="queue" class="btn-outline">Check Live Queue</a>
+          </div>
+        </div>
+        <h2 class="section-title">Today at a glance</h2>
+        <div class="grid g4">
+          <div class="card stat"><p>Avg. waiting time</p><h3 class="success">16 min</h3><small>&darr; 72% vs. walk-in</small></div>
+          <div class="card stat"><p>Patients served</p><h3 class="primary" id="servedCount">1,284</h3><small>Since 8:00 AM</small></div>
+          <div class="card stat"><p>Active tokens</p><h3 class="warning">342</h3><small>Across 8 OPD counters</small></div>
+          <div class="card stat"><p>Beds available</p><h3 class="error">47 / 320</h3><small>ICU: 3 free</small></div>
+        </div>
+        <div class="grid g3-2">
+          <div class="card pad">
+            <h3>Queue overview by department</h3>
+            <div id="homeDeptList"></div>
+          </div>
+          <div class="card pad">
+            <h3>Active alerts</h3>
+            <ul class="alerts">
+              <li class="a-err">Orthopaedics at 91% capacity — new slots after 14:00.</li>
+              <li class="a-warn">Pathology lab: sample collection delayed ~10 min.</li>
+              <li class="a-info">Free eye check-up camp, Ophthalmology, Wed 9 AM.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 2. PATIENT REGISTRATION (5 steps) ================= -->
+      <section class="view" id="view-register">
+        <h1>Patient Registration &amp; OPD Booking</h1>
+        <p class="muted">Complete the 5 steps below to get your OPD token.</p>
+        <ol class="stepper" id="stepper">
+          <li class="active">1. Personal details</li><li>2. ID verification</li><li>3. Department</li><li>4. Date &amp; slot</li><li>5. Confirm</li>
+        </ol>
+
+        <form class="card pad" id="regForm" novalidate>
+          <!-- Step 1 -->
+          <div class="step" data-step="1">
+            <div class="grid g2">
+              <label>Full name *<input class="field" id="pName" placeholder="e.g. Ramesh Patil" /></label>
+              <label>Mobile number *<input class="field" id="pPhone" maxlength="10" placeholder="10-digit mobile" /></label>
+              <label>Age *<input class="field" id="pAge" type="number" min="0" max="120" /></label>
+              <label>Gender *<select class="field" id="pGender"><option value="">Select</option><option>Male</option><option>Female</option><option>Other</option></select></label>
+              <label class="span2">Address<input class="field" id="pAddr" placeholder="Village / Town, District" /></label>
+            </div>
+          </div>
+          <!-- Step 2 -->
+          <div class="step" data-step="2" hidden>
+            <div class="grid g2">
+              <label>ID type *<select class="field" id="pIdType"><option>Aadhaar</option><option>ABHA</option><option>Ration Card</option><option>Voter ID</option></select></label>
+              <label>ID number *<input class="field" id="pIdNum" placeholder="Enter ID number" /></label>
+            </div>
+            <button type="button" class="btn-outline" id="sendOtp">Send OTP</button>
+            <div id="otpBox" hidden>
+              <p class="muted">OTP sent to your mobile. <strong>Use code: 123456</strong></p>
+              <div class="row"><input class="field narrow" id="otpInput" maxlength="6" placeholder="Enter 6-digit OTP" /><button type="button" class="btn" id="verifyOtp">Verify</button></div>
+            </div>
+            <p id="otpStatus"></p>
+          </div>
+          <!-- Step 3 -->
+          <div class="step" data-step="3" hidden>
+            <p class="muted">Choose a department and doctor.</p>
+            <div class="grid g4" id="deptGrid"></div>
+            <div id="doctorList"></div>
+          </div>
+          <!-- Step 4 -->
+          <div class="step" data-step="4" hidden>
+            <label>Visit date *<input class="field narrow" type="date" id="pDate" /></label>
+            <p class="muted">Select a time slot (grey = full).</p>
+            <div class="slots" id="slotGrid"></div>
+          </div>
+          <!-- Step 5 -->
+          <div class="step" data-step="5" hidden>
+            <h3>Review your details</h3>
+            <div id="reviewBox" class="review"></div>
+            <label class="check"><input type="checkbox" id="consent" /> I confirm the details are correct.</label>
+          </div>
+
+          <p class="error-msg" id="formError"></p>
+          <div class="row between">
+            <button type="button" class="btn-outline" id="prevBtn">&larr; Back</button>
+            <button type="button" class="btn" id="nextBtn">Next &rarr;</button>
+          </div>
+        </form>
+
+        <!-- Generated token -->
+        <div class="card pad token-card" id="tokenCard" hidden>
+          <div class="token-head"><span class="brand-icon">&#10010;</span><div><strong>Healthcare Access Project</strong><br /><small>District Government Hospital — OPD Token</small></div></div>
+          <div class="token-body">
+            <div id="tokenInfo"></div>
+            <canvas id="qrCanvas" width="150" height="150" aria-label="Token QR code"></canvas>
+          </div>
+          <p class="muted small">Please arrive 10 minutes before your slot. Show this token at the counter.</p>
+          <div class="row no-print">
+            <button class="btn" id="printToken">Print token</button>
+            <button class="btn-outline" id="downloadToken">Download token</button>
+            <button class="btn-outline" id="newBooking">New booking</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 3. APPOINTMENTS ================= -->
+      <section class="view" id="view-appointments">
+        <h1>My Appointments</h1>
+        <div class="card pad row">
+          <input class="field narrow" id="apSearch" placeholder="Search name or token" />
+          <select class="field narrow" id="apFilter"><option value="All">All statuses</option><option>Confirmed</option><option>Completed</option><option>Cancelled</option></select>
+        </div>
+        <div class="card table-wrap">
+          <table>
+            <thead><tr><th>Token</th><th>Patient</th><th>Department</th><th>Doctor</th><th>Date &amp; Slot</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="apBody"></tbody>
+          </table>
+        </div>
+        <!-- Reschedule dialog -->
+        <div class="modal" id="resModal" hidden>
+          <div class="card pad modal-box">
+            <h3>Reschedule appointment</h3>
+            <label>New date<input class="field" type="date" id="resDate" /></label>
+            <label>New slot<select class="field" id="resSlot"></select></label>
+            <div class="row"><button class="btn" id="resSave">Save</button><button class="btn-outline" id="resCancel">Close</button></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 4. QUEUE MANAGEMENT ================= -->
+      <section class="view" id="view-queue">
+        <div class="row between"><h1>Queue Management</h1><label class="check"><input type="checkbox" id="autoSim" checked /> Auto-simulate</label></div>
+        <div class="card pad announce" id="announce" hidden></div>
+        <div class="card pad">
+          <h3>Token status tracker</h3>
+          <form class="row" id="trackForm"><input class="field narrow" id="trackInput" placeholder="e.g. OPD-GEN-1042" /><button class="btn">Track</button></form>
+          <div id="trackResult"></div>
+        </div>
+        <div class="grid g4" id="queueGrid"></div>
+      </section>
+
+      <!-- ================= 5. DIAGNOSTICS & PHARMACY ================= -->
+      <section class="view" id="view-diagnostics">
+        <h1>Diagnostics &amp; Pharmacy</h1>
+        <div class="grid g2">
+          <div class="card pad">
+            <h3>Book a lab test</h3>
+            <label>Test<select class="field" id="labTest"><option>Complete Blood Count</option><option>Blood Sugar (Fasting)</option><option>Lipid Profile</option><option>X-Ray Chest</option><option>Urine Routine</option><option>ECG</option></select></label>
+            <label>Slot<select class="field" id="labSlot"><option>08:00</option><option>08:30</option><option>09:00</option><option>09:30</option><option>10:00</option></select></label>
+            <button class="btn" id="labBook">Get lab token</button>
+            <p id="labResult"></p>
+          </div>
+          <div class="card pad">
+            <h3>Pharmacy token</h3>
+            <label>Prescription / OPD token<input class="field" id="phToken" placeholder="e.g. OPD-GEN-1042" /></label>
+            <button class="btn" id="phBook">Get pharmacy token</button>
+            <p id="phResult"></p>
+            <p class="muted small">Now serving at pharmacy: <strong id="phServing">PH-118</strong></p>
+          </div>
+        </div>
+        <div class="card pad">
+          <h3>Report status</h3>
+          <table><thead><tr><th>Report ID</th><th>Test</th><th>Patient</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td>LAB-5521</td><td>Complete Blood Count</td><td>Ramesh Patil</td><td><span class="badge b-success">Ready</span></td></tr>
+              <tr><td>LAB-5522</td><td>Lipid Profile</td><td>Lakshmi Devi</td><td><span class="badge b-warning">Processing</span></td></tr>
+              <tr><td>LAB-5523</td><td>X-Ray Chest</td><td>Aarav Sharma</td><td><span class="badge b-muted">Sample pending</span></td></tr>
+            </tbody></table>
+        </div>
+      </section>
+
+      <!-- ================= 6. HOSPITAL LOAD & ANALYTICS ================= -->
+      <section class="view" id="view-analytics">
+        <h1>Hospital Load &amp; Analytics</h1>
+        <div class="grid g2">
+          <div class="card pad"><h3>Department occupancy</h3><div id="occList"></div></div>
+          <div class="card pad"><h3>Peak hours (patients / hour)</h3><div class="chart" id="peakChart"></div></div>
+          <div class="card pad"><h3>Bed availability</h3><div id="bedList"></div></div>
+          <div class="card pad"><h3>Doctor availability</h3><ul class="plain" id="docList"></ul></div>
+        </div>
+      </section>
+
+      <!-- ================= 7. IMPACT TRACKING ================= -->
+      <section class="view" id="view-impact">
+        <h1>Impact Tracking</h1>
+        <div class="grid g4">
+          <div class="card stat"><p>Total visit time</p><h3 class="success">72 min</h3><small>was 4.5 hours</small></div>
+          <div class="card stat"><p>Registration</p><h3 class="primary">3 min</h3><small>was 60 min</small></div>
+          <div class="card stat"><p>Patients / day</p><h3 class="primary">+38%</h3><small>same staff</small></div>
+          <div class="card stat"><p>Satisfaction</p><h3 class="success">4.6 / 5</h3><small>trial survey</small></div>
+        </div>
+        <div class="card pad"><h3>Waiting time per stage (minutes): traditional vs. digital</h3><div id="impactBars"></div></div>
+        <div class="card pad"><h3>Patients served per day — 6-week trial</h3><div class="chart" id="trialChart"></div></div>
+      </section>
+
+      <!-- ================= EMERGENCY ================= -->
+      <section class="view" id="view-emergency">
+        <h1>Emergency</h1>
+        <p class="muted">For emergencies, go straight to Casualty — no registration required.</p>
+        <div class="grid g2">
+          <div class="card pad"><h3>&#128657; Ambulance</h3><p class="muted">Dial 108 (free, 24&times;7) for an ambulance.</p></div>
+          <div class="card pad"><h3>&#128222; Casualty desk</h3><p class="muted">1800-000-0000, open 24 hours.</p></div>
+          <div class="card pad"><h3>&#128205; Casualty ward</h3><p class="muted">Ground floor, Gate 2 — no OPD token needed.</p></div>
+          <div class="card pad"><h3>&#10084;&#65039; Triage</h3><p class="muted">Critical patients are seen immediately, before any queue.</p></div>
+        </div>
+      </section>
+
+      <!-- ================= 8. ABOUT ================= -->
+      <section class="view" id="view-about">
+        <h1>About the project</h1>
+        <div class="card pad">
+          <p>In many Indian government hospitals, patients queue from early morning to get an OPD slip — then queue again for the doctor, the lab and the pharmacy. A single visit can take 4–5 hours.</p>
+          <p>The <strong>Healthcare Access Project</strong> digitises this journey: online registration with ID verification, timed OPD tokens, live queue tracking, lab and pharmacy tokens, and an operations dashboard for administrators.</p>
+          <p>It is designed to work alongside ABHA (Ayushman Bharat Health Account) and on low-end phones and help-desk kiosks.</p>
+        </div>
+      </section>
+
+      <!-- ================= 9. SOLUTIONS ================= -->
+      <section class="view" id="view-solutions">
+        <h1>Solutions</h1>
+        <div class="grid g3">
+          <a class="card pad tile" href="#register" data-view="register"><h3>&#128221; Online registration</h3><p class="muted">Register from home with Aadhaar/ABHA OTP verification.</p></a>
+          <a class="card pad tile" href="#register" data-view="register"><h3>&#127915; Timed QR tokens</h3><p class="muted">Each patient gets a slot and QR token — no early-morning lines.</p></a>
+          <a class="card pad tile" href="#queue" data-view="queue"><h3>&#128101; Live queues</h3><p class="muted">Counter displays, call-next and alerts keep patients informed.</p></a>
+          <a class="card pad tile" href="#diagnostics" data-view="diagnostics"><h3>&#129514; Diagnostics</h3><p class="muted">Pre-booked lab slots and online report status.</p></a>
+          <a class="card pad tile" href="#diagnostics" data-view="diagnostics"><h3>&#128138; Pharmacy tokens</h3><p class="muted">Medicines packed ahead; collect when notified.</p></a>
+          <a class="card pad tile" href="#analytics" data-view="analytics"><h3>&#128202; Load analytics</h3><p class="muted">Occupancy, beds and peak hours in real time.</p></a>
+        </div>
+      </section>
+
+      <!-- ================= 10. CONTACT ================= -->
+      <section class="view" id="view-contact">
+        <h1>Contact</h1>
+        <div class="grid g2">
+          <form class="card pad" id="contactForm" novalidate>
+            <label>Name *<input class="field" id="cName" /></label>
+            <label>Email *<input class="field" id="cEmail" type="email" /></label>
+            <label>Message *<textarea class="field" id="cMsg" rows="4"></textarea></label>
+            <button class="btn">Send message</button>
+            <p id="contactResult"></p>
+          </form>
+          <div class="card pad">
+            <h3>Help desk</h3>
+            <p>&#128222; 1800-000-0000 (toll free, demo)</p>
+            <p>&#9993;&#65039; helpdesk@example.org</p>
+            <p>&#128205; District Government Hospital, Civil Lines</p>
+            <p class="muted">Open 8:00 AM – 8:00 PM, all days.</p>
+          </div>
+        </div>
+      </section>
+
+      <footer class="footer no-print">&copy; 2026 Healthcare Access Project · Public healthcare services portal.</footer>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
